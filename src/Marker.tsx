@@ -17,33 +17,6 @@ export const Marker = React.memo(
     const map = useContext(MapContext);
     const clusterer = useContext(MarkerClustererContext);
 
-    const handleClick = useCallback(
-      (event: any) => {
-        if (onClick) {
-          onClick(event);
-        }
-      },
-      [onClick]
-    );
-
-    const handleMouseOver = useCallback(
-      (event: any) => {
-        if (onMouseOver) {
-          onMouseOver(event);
-        }
-      },
-      [onMouseOver]
-    );
-
-    const handleMouseOut = useCallback(
-      (event: any) => {
-        if (onMouseOut) {
-          onMouseOut(event);
-        }
-      },
-      [onMouseOut]
-    );
-
     useEffect(() => {
       if (clusterer) {
         clusterer.addMarker(marker);
@@ -60,41 +33,43 @@ export const Marker = React.memo(
     }, [map, clusterer]);
 
     useEffect(() => {
-      kakao.maps.event.addListener(marker, MarkerEvent.click, handleClick);
-      return () => {
-        kakao.maps.event.removeListener(marker, MarkerEvent.click, handleClick);
-      };
-    }, [marker, handleClick]);
+      if (onClick) {
+        kakao.maps.event.addListener(marker, MarkerEvent.click, onClick);
+        return () => {
+          kakao.maps.event.removeListener(marker, MarkerEvent.click, onClick);
+        };
+      }
+    }, [marker, onClick]);
 
     useEffect(() => {
-      kakao.maps.event.addListener(
-        marker,
-        MarkerEvent.mouseover,
-        handleMouseOver
-      );
-      return () => {
-        kakao.maps.event.removeListener(
+      if (onMouseOver) {
+        kakao.maps.event.addListener(
           marker,
           MarkerEvent.mouseover,
-          handleMouseOver
+          onMouseOver
         );
-      };
-    }, [marker, handleMouseOver]);
+        return () => {
+          kakao.maps.event.removeListener(
+            marker,
+            MarkerEvent.mouseover,
+            onMouseOver
+          );
+        };
+      }
+    }, [marker, onMouseOver]);
 
     useEffect(() => {
-      kakao.maps.event.addListener(
-        marker,
-        MarkerEvent.mouseout,
-        handleMouseOut
-      );
-      return () => {
-        kakao.maps.event.removeListener(
-          marker,
-          MarkerEvent.mouseout,
-          handleMouseOut
-        );
-      };
-    }, [marker, handleMouseOut]);
+      if (onMouseOut) {
+        kakao.maps.event.addListener(marker, MarkerEvent.mouseout, onMouseOut);
+        return () => {
+          kakao.maps.event.removeListener(
+            marker,
+            MarkerEvent.mouseout,
+            onMouseOut
+          );
+        };
+      }
+    }, [marker, onMouseOut]);
 
     useEffect(() => {
       if (typeof options.altitude !== "undefined") {
