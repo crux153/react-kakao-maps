@@ -1,9 +1,9 @@
-import * as React from "react";
+import React from "react";
 
 import { MapContext } from "./Map";
 
-export const MarkerClustererContext: React.Context<kakao.maps.MarkerClusterer> = React.createContext(
-  {} as kakao.maps.MarkerClusterer
+export const MarkerClustererContext = React.createContext<kakao.maps.MarkerClusterer | null>(
+  null
 );
 
 export interface MarkerClustererProps {

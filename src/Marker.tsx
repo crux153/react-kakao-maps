@@ -1,166 +1,164 @@
-import * as React from "react";
+import React, { useContext, useEffect, useCallback, useMemo } from "react";
 
 import { MapContext } from "./Map";
+import { MarkerClustererContext } from "./MarkerClusterer";
 
 export interface MarkerProps {
-  markerClusterer?: kakao.maps.MarkerClusterer;
   options: kakao.maps.MarkerOptions;
-  onClick?(): void;
-  onMouseOver?(): void;
-  onMouseOut?(): void;
+  onClick?(event: any): void;
+  onMouseOver?(event: any): void;
+  onMouseOut?(event: any): void;
 }
 
-export class Marker extends React.PureComponent<MarkerProps> {
-  public static contextType = MapContext;
-  public context!: React.ContextType<typeof MapContext>;
+export const Marker = React.memo(
+  ({ options, onClick, onMouseOver, onMouseOut }: MarkerProps) => {
+    const marker = useMemo(() => new kakao.maps.Marker(options), []);
 
-  public readonly marker: kakao.maps.Marker;
+    const map = useContext(MapContext);
+    const clusterer = useContext(MarkerClustererContext);
 
-  constructor(props: MarkerProps) {
-    super(props);
-    this._onClick = this._onClick.bind(this);
-    this._onMouseOut = this._onMouseOut.bind(this);
-    this._onMouseOver = this._onMouseOver.bind(this);
-    this.marker = new kakao.maps.Marker(this.props.options);
-  }
-
-  public componentDidMount() {
-    const { markerClusterer } = this.props;
-
-    if (markerClusterer) {
-      markerClusterer.addMarker(this.marker);
-    } else {
-      const map = this.context;
-      this.marker.setMap(map);
-    }
-
-    kakao.maps.event.addListener(this.marker, MarkerEvent.click, this._onClick);
-    kakao.maps.event.addListener(
-      this.marker,
-      MarkerEvent.mouseover,
-      this._onMouseOver
+    const handleClick = useCallback(
+      (event: any) => {
+        if (onClick) {
+          onClick(event);
+        }
+      },
+      [onClick]
     );
-    kakao.maps.event.addListener(
-      this.marker,
-      MarkerEvent.mouseout,
-      this._onMouseOut
+
+    const handleMouseOver = useCallback(
+      (event: any) => {
+        if (onMouseOver) {
+          onMouseOver(event);
+        }
+      },
+      [onMouseOver]
     );
-  }
 
-  public componentDidUpdate(prevProps: Readonly<MarkerProps>) {
-    const { options } = this.props;
-    const prevOptions = prevProps.options;
-
-    if (prevOptions !== options) {
-      if (
-        typeof options.altitude !== "undefined" &&
-        prevOptions.altitude !== options.altitude
-      ) {
-        this.marker.setAltitude(options.altitude);
-      }
-      if (
-        typeof options.clickable !== "undefined" &&
-        prevOptions.clickable !== options.clickable
-      ) {
-        this.marker.setClickable(options.clickable);
-      }
-      if (
-        typeof options.draggable !== "undefined" &&
-        prevOptions.draggable !== options.draggable
-      ) {
-        this.marker.setDraggable(options.draggable);
-      }
-      if (
-        typeof options.image !== "undefined" &&
-        prevOptions.image !== options.image
-      ) {
-        this.marker.setImage(options.image);
-      }
-      if (
-        typeof options.map !== "undefined" &&
-        prevOptions.map !== options.map
-      ) {
-        this.marker.setMap(options.map);
-      }
-      if (
-        typeof options.opacity !== "undefined" &&
-        prevOptions.opacity !== options.opacity
-      ) {
-        this.marker.setOpacity(options.opacity);
-      }
-      if (prevOptions.position !== options.position) {
-        this.marker.setPosition(options.position);
-      }
-      if (
-        typeof options.range !== "undefined" &&
-        prevOptions.range !== options.range
-      ) {
-        this.marker.setRange(options.range);
-      }
-      if (
-        typeof options.title !== "undefined" &&
-        prevOptions.title !== options.title
-      ) {
-        this.marker.setTitle(options.title);
-      }
-      if (
-        typeof options.zIndex !== "undefined" &&
-        prevOptions.zIndex !== options.zIndex
-      ) {
-        this.marker.setZIndex(options.zIndex);
-      }
-    }
-  }
-
-  public componentWillUnmount() {
-    const { markerClusterer } = this.props;
-    if (markerClusterer) {
-      markerClusterer.removeMarker(this.marker);
-    }
-
-    kakao.maps.event.removeListener(
-      this.marker,
-      MarkerEvent.click,
-      this._onClick
+    const handleMouseOut = useCallback(
+      (event: any) => {
+        if (onMouseOut) {
+          onMouseOut(event);
+        }
+      },
+      [onMouseOut]
     );
-    kakao.maps.event.removeListener(
-      this.marker,
-      MarkerEvent.mouseover,
-      this._onMouseOver
-    );
-    kakao.maps.event.removeListener(
-      this.marker,
-      MarkerEvent.mouseout,
-      this._onMouseOut
-    );
-    this.marker.setMap(null);
-  }
 
-  public render() {
+    useEffect(() => {
+      if (clusterer) {
+        clusterer.addMarker(marker);
+      } else {
+        marker.setMap(map);
+      }
+      return () => {
+        if (clusterer) {
+          clusterer.removeMarker(marker);
+        } else {
+          marker.setMap(null);
+        }
+      };
+    }, [map, clusterer]);
+
+    useEffect(() => {
+      kakao.maps.event.addListener(marker, MarkerEvent.click, handleClick);
+      return () => {
+        kakao.maps.event.removeListener(marker, MarkerEvent.click, handleClick);
+      };
+    }, [marker, handleClick]);
+
+    useEffect(() => {
+      kakao.maps.event.addListener(
+        marker,
+        MarkerEvent.mouseover,
+        handleMouseOver
+      );
+      return () => {
+        kakao.maps.event.removeListener(
+          marker,
+          MarkerEvent.mouseover,
+          handleMouseOver
+        );
+      };
+    }, [marker, handleMouseOver]);
+
+    useEffect(() => {
+      kakao.maps.event.addListener(
+        marker,
+        MarkerEvent.mouseout,
+        handleMouseOut
+      );
+      return () => {
+        kakao.maps.event.removeListener(
+          marker,
+          MarkerEvent.mouseout,
+          handleMouseOut
+        );
+      };
+    }, [marker, handleMouseOut]);
+
+    useEffect(() => {
+      if (typeof options.altitude !== "undefined") {
+        marker.setAltitude(options.altitude);
+      }
+    }, [marker, options.altitude]);
+
+    useEffect(() => {
+      if (typeof options.clickable !== "undefined") {
+        marker.setClickable(options.clickable);
+      }
+    }, [marker, options.clickable]);
+
+    useEffect(() => {
+      if (typeof options.draggable !== "undefined") {
+        marker.setDraggable(options.draggable);
+      }
+    }, [marker, options.draggable]);
+
+    useEffect(() => {
+      if (typeof options.image !== "undefined") {
+        marker.setImage(options.image);
+      }
+    }, [marker, options.image]);
+
+    useEffect(() => {
+      if (typeof options.map !== "undefined") {
+        marker.setMap(options.map);
+      }
+    }, [marker, options.map]);
+
+    useEffect(() => {
+      if (typeof options.opacity !== "undefined") {
+        marker.setOpacity(options.opacity);
+      }
+    }, [marker, options.opacity]);
+
+    useEffect(() => {
+      if (typeof options.position !== "undefined") {
+        marker.setPosition(options.position);
+      }
+    }, [marker, options.position]);
+
+    useEffect(() => {
+      if (typeof options.range !== "undefined") {
+        marker.setRange(options.range);
+      }
+    }, [marker, options.range]);
+
+    useEffect(() => {
+      if (typeof options.title !== "undefined") {
+        marker.setTitle(options.title);
+      }
+    }, [marker, options.title]);
+
+    useEffect(() => {
+      if (typeof options.zIndex !== "undefined") {
+        marker.setZIndex(options.zIndex);
+      }
+    }, [marker, options.zIndex]);
+
     return null;
   }
-
-  private _onClick() {
-    const { onClick } = this.props;
-    if (onClick) {
-      onClick();
-    }
-  }
-
-  private _onMouseOut() {
-    const { onMouseOut } = this.props;
-    if (onMouseOut) {
-      onMouseOut();
-    }
-  }
-
-  private _onMouseOver() {
-    const { onMouseOver } = this.props;
-    if (onMouseOver) {
-      onMouseOver();
-    }
-  }
-}
+);
 
 enum MarkerEvent {
   click = "click",

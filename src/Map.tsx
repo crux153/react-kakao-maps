@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 export const MapContext: React.Context<kakao.maps.Map> = React.createContext(
   {} as kakao.maps.Map
