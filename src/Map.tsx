@@ -59,6 +59,13 @@ export class Map extends React.PureComponent<MapProps, State> {
       }
 
       if (
+        typeof options.level !== "undefined" &&
+        prevOptions.level !== options.level
+      ) {
+        map.setLevel(options.level);
+      }
+
+      if (
         typeof this.props.maxLevel !== "undefined" &&
         prevProps.maxLevel !== this.props.maxLevel
       ) {

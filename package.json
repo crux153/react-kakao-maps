@@ -1,6 +1,6 @@
 {
   "name": "@ref/react-kakao-maps",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "React Kakao Map Components",
   "license": "MIT",
   "scripts": {
