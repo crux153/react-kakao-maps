@@ -11,6 +11,7 @@ export interface MapProps
   options: kakao.maps.MapOptions;
   zoomable?: boolean;
   cursor?: string;
+  overlays?: kakao.maps.MapTypeId[];
   onBoundChanged?(map: kakao.maps.Map): void;
   onCenterChanged?(map: kakao.maps.Map): void;
   onClick?(e: kakao.maps.event.MouseEvent, map: kakao.maps.Map): void;
@@ -83,6 +84,21 @@ export class Map extends React.PureComponent<MapProps, State> {
         prevProps.cursor !== this.props.cursor
       ) {
         map.setCursor(this.props.cursor);
+      }
+
+      if (prevProps.overlays !== this.props.overlays) {
+        const prevOverlays = prevProps.overlays || [];
+        const overlays = this.props.overlays || [];
+
+        const added = overlays.filter(
+          overlay => !prevOverlays.includes(overlay)
+        );
+        const removed = prevOverlays.filter(
+          overlay => !overlays.includes(overlay)
+        );
+
+        added.forEach(overlay => map.addOverlayMapTypeId(overlay));
+        removed.forEach(overlay => map.removeOverlayMapTypeId(overlay));
       }
     }
   }
