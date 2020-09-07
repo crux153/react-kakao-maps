@@ -33,7 +33,7 @@ export class MarkerClusterer extends React.PureComponent<MarkerClustererProps> {
     this.markerClusterer = new kakao.maps.MarkerClusterer(props.options);
     this.contextValue = {
       addMarker: this.addMarker.bind(this),
-      removeMarker: this.removeMarker.bind(this)
+      removeMarker: this.removeMarker.bind(this),
     };
   }
 

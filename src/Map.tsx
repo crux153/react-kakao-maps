@@ -27,7 +27,7 @@ enum MapEvent {
   bound_changed = "bound_changed",
   center_changed = "center_changed",
   click = "click",
-  zoom_changed = "zoom_changed"
+  zoom_changed = "zoom_changed",
 }
 
 export class Map extends React.PureComponent<MapProps, State> {
@@ -98,14 +98,14 @@ export class Map extends React.PureComponent<MapProps, State> {
         const overlays = this.props.overlays || [];
 
         const added = overlays.filter(
-          overlay => !prevOverlays.includes(overlay)
+          (overlay) => !prevOverlays.includes(overlay)
         );
         const removed = prevOverlays.filter(
-          overlay => !overlays.includes(overlay)
+          (overlay) => !overlays.includes(overlay)
         );
 
-        added.forEach(overlay => map.addOverlayMapTypeId(overlay));
-        removed.forEach(overlay => map.removeOverlayMapTypeId(overlay));
+        added.forEach((overlay) => map.addOverlayMapTypeId(overlay));
+        removed.forEach((overlay) => map.removeOverlayMapTypeId(overlay));
       }
     }
   }

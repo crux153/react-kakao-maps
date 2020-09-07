@@ -98,5 +98,5 @@ export class Polyline extends React.PureComponent<PolylineProps> {
 enum PolylineEvent {
   click = "click",
   mouseover = "mouseover",
-  mouseout = "mouseout"
+  mouseout = "mouseout",
 }
