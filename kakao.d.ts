@@ -1756,7 +1756,7 @@ declare namespace kakao.maps {
   /**
    * @see [InfoWindow](https://apis.map.kakao.com/web/documentation/#InfoWindow)
    */
-  export class InfoWindow implements kakao.maps.event.EventTarget {
+  export class InfoWindow {
     /**
      * 주어진 객체로 인포윈도우를 생성한다.
      * 지도 뿐만 아니라 로드뷰 위에도 올릴 수 있다.
@@ -1864,7 +1864,7 @@ declare namespace kakao.maps {
     /**
      * 인포윈도우가 올라갈 지도 또는 로드뷰
      */
-    map: Map;
+    map?: Map;
 
     /**
      * 인포윈도우의 좌표
