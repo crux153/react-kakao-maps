@@ -1,75 +1,44 @@
-import React from "react";
-import { render } from "react-dom";
+import React, { useContext, useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 
 import { MapContext } from "./Map";
 
 export interface CustomOverlayProps {
-  options: kakao.maps.CustomOverlayOptions;
-  visible: boolean;
+  options: Omit<kakao.maps.CustomOverlayOptions, "content">;
+  children: React.ReactNode;
 }
 
-export class CustomOverlay extends React.PureComponent<CustomOverlayProps> {
-  public static contextType = MapContext;
-  public context!: React.ContextType<typeof MapContext>;
+export const CustomOverlay = React.memo(function CustomOverlay({
+  options,
+  children,
+}: CustomOverlayProps) {
+  const content = useState(() => document.createElement("div"))[0];
+  const customOverlay = useState(
+    () =>
+      new kakao.maps.CustomOverlay({
+        ...options,
+        content,
+      })
+  )[0];
 
-  private readonly customOverlay: kakao.maps.CustomOverlay;
+  const map = useContext(MapContext);
 
-  constructor(props: CustomOverlayProps) {
-    super(props);
-    this.customOverlay = new kakao.maps.CustomOverlay(this.props.options);
-  }
+  useEffect(() => {
+    customOverlay.setMap(map);
+    return () => customOverlay.setMap(null);
+  }, [customOverlay, map]);
 
-  public componentDidMount() {
-    const { children, visible, options } = this.props;
-    const map = this.context;
-    this.customOverlay.setMap(map);
-
-    // 처음에는 visible = false 하고,
-    this.customOverlay.setVisible(false);
-
-    if (children) {
-      const div = document.createElement("div");
-      render(<React.Fragment>{children}</React.Fragment>, div);
-      this.customOverlay.setContent(div);
-      this.customOverlay.setPosition(options.position);
-
-      // 조금 뜸을 들였다가 visible = true 해야 정상적인 position에 나타난다.
-      const handle = setTimeout(() => {
-        this.customOverlay.setVisible(visible);
-        clearTimeout(handle);
-      });
+  useEffect(() => {
+    if (typeof options.position !== "undefined") {
+      customOverlay.setPosition(options.position);
     }
-  }
+  }, [customOverlay, options.position]);
 
-  public componentDidUpdate(prevProps: Readonly<CustomOverlayProps>) {
-    const { options, visible } = this.props;
-    const { options: prevOptions } = prevProps;
-
-    if (prevOptions !== options) {
-      if (
-        typeof options.map !== "undefined" &&
-        prevOptions.map !== options.map
-      ) {
-        this.customOverlay.setMap(options.map);
-      }
-      if (prevOptions.position !== options.position) {
-        this.customOverlay.setPosition(options.position);
-      }
-      if (
-        typeof options.zIndex !== "undefined" &&
-        prevOptions.zIndex !== options.zIndex
-      ) {
-        this.customOverlay.setZIndex(options.zIndex);
-      }
-      this.customOverlay.setVisible(visible);
+  useEffect(() => {
+    if (typeof options.zIndex !== "undefined") {
+      customOverlay.setZIndex(options.zIndex);
     }
-  }
+  }, [customOverlay, options.zIndex]);
 
-  public componentWillUnmount() {
-    this.customOverlay.setMap(null);
-  }
-
-  public render() {
-    return null;
-  }
-}
+  return ReactDOM.createPortal(children, content);
+});
