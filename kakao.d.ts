@@ -1209,7 +1209,7 @@ declare namespace kakao.maps {
     /**
      * 클러스터 마커에 설정된 스타일 배열을 반환한다.
      */
-    getStyles(): object[];
+    getStyles(): Record<string, any>[];
 
     /**
      * 클러스터 마커에 스타일을 설정한다.
@@ -1217,7 +1217,7 @@ declare namespace kakao.maps {
      *
      * @param styles 클러스터 마커에 설정할 스타일 배열
      */
-    setStyles(styles: object[]): void;
+    setStyles(styles: Record<string, any>[]): void;
 
     /**
      * 지도에 마커 클러스터러를 올린다.
@@ -1913,7 +1913,7 @@ declare namespace kakao.maps.event {
   export function addListener(
     target: EventTarget,
     type: string,
-    handler: Function
+    handler: (...args: any[]) => void
   ): void;
 
   /**
@@ -1926,7 +1926,7 @@ declare namespace kakao.maps.event {
   export function removeListener(
     target: EventTarget,
     type: string,
-    handler: Function
+    handler: (...args: any[]) => void
   ): void;
 
   /**
