@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useCallback, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 
 import { MapContext } from "./Map";
 import { MarkerClustererContext } from "./MarkerClusterer";
@@ -138,5 +138,5 @@ export const Marker = React.memo(
 enum MarkerEvent {
   click = "click",
   mouseover = "mouseover",
-  mouseout = "mouseout"
+  mouseout = "mouseout",
 }
